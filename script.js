@@ -499,6 +499,79 @@
   /* ==========================================================================
      4. BILLING & DISCOUNT CALCULATIONS (Rules from Section 10)
      ========================================================================== */
+  const AVAILABLE_COUPONS = {
+    SAVE10: {
+      code: 'SAVE10',
+      rate: 0.10,
+      minSpend: 0,
+      maxDiscount: 500,
+      description: '10% OFF on all orders (Max ₹500 discount)'
+    },
+    SMART10: {
+      code: 'SMART10',
+      rate: 0.10,
+      minSpend: 0,
+      maxDiscount: 500,
+      description: '10% OFF on all orders (Max ₹500 discount)'
+    },
+    SAVE25: {
+      code: 'SAVE25',
+      rate: 0.25,
+      minSpend: 1999,
+      maxDiscount: 1000,
+      description: '25% OFF on orders of ₹1,999+ (Max ₹1,000 discount)'
+    },
+    SUPER25: {
+      code: 'SUPER25',
+      rate: 0.25,
+      minSpend: 1999,
+      maxDiscount: 1000,
+      description: '25% OFF on orders of ₹1,999+ (Max ₹1,000 discount)'
+    },
+    MEGA35: {
+      code: 'MEGA35',
+      rate: 0.35,
+      minSpend: 3499,
+      maxDiscount: 2000,
+      description: '35% OFF on orders of ₹3,499+ (Max ₹2,000 discount)'
+    },
+    SAVE35: {
+      code: 'SAVE35',
+      rate: 0.35,
+      minSpend: 3499,
+      maxDiscount: 2000,
+      description: '35% OFF on orders of ₹3,499+ (Max ₹2,000 discount)'
+    },
+    VIP50: {
+      code: 'VIP50',
+      rate: 0.50,
+      minSpend: 4999,
+      maxDiscount: 3500,
+      description: '50% OFF on orders of ₹4,999+ (Max ₹3,500 discount)'
+    },
+    HALF50: {
+      code: 'HALF50',
+      rate: 0.50,
+      minSpend: 4999,
+      maxDiscount: 3500,
+      description: '50% OFF on orders of ₹4,999+ (Max ₹3,500 discount)'
+    },
+    SAVE50: {
+      code: 'SAVE50',
+      rate: 0.50,
+      minSpend: 4999,
+      maxDiscount: 3500,
+      description: '50% OFF on orders of ₹4,999+ (Max ₹3,500 discount)'
+    },
+    WELCOME50: {
+      code: 'WELCOME50',
+      flat: 50,
+      minSpend: 999,
+      maxDiscount: 50,
+      description: 'Flat ₹50 OFF on orders of ₹999+'
+    }
+  };
+
   function calculateBill(cartItems, appliedCoupon) {
     let originalPriceTotal = 0;
     let subtotalAfterDiscount = 0;
@@ -521,18 +594,17 @@
     let couponMessage = '';
 
     if (appliedCoupon && subtotalAfterDiscount > 0) {
-      const code = appliedCoupon.code.toUpperCase();
-      if (code === 'SAVE10') {
-        // 10% off eligible subtotal, max ₹500
-        const tenPercent = subtotalAfterDiscount * 0.10;
-        couponDiscount = Math.min(tenPercent, 500);
-      } else if (code === 'WELCOME50') {
-        // ₹50 off orders of ₹999 or more
-        if (subtotalAfterDiscount >= 999) {
-          couponDiscount = 50;
-        } else {
+      const code = appliedCoupon.code ? appliedCoupon.code.toUpperCase() : '';
+      const coupon = AVAILABLE_COUPONS[code];
+      if (coupon) {
+        if (coupon.minSpend && subtotalAfterDiscount < coupon.minSpend) {
           couponDiscount = 0;
-          couponMessage = 'Order subtotal must be at least ₹999 to use WELCOME50';
+          couponMessage = `Order subtotal must be at least ₹${coupon.minSpend.toLocaleString('en-IN')} to use ${coupon.code}`;
+        } else if (coupon.rate) {
+          const discountVal = subtotalAfterDiscount * coupon.rate;
+          couponDiscount = coupon.maxDiscount ? Math.min(discountVal, coupon.maxDiscount) : discountVal;
+        } else if (coupon.flat) {
+          couponDiscount = coupon.flat;
         }
       }
     }
@@ -1361,6 +1433,9 @@
       if (couponRow) couponRow.style.display = 'flex';
       if (couponDisplay) couponDisplay.textContent = state.appliedCoupon.code;
       if (couponValEl) couponValEl.textContent = `-${formatPrice(bill.couponDiscount)}`;
+    } else if (state.appliedCoupon && bill.couponMessage) {
+      if (couponRow) couponRow.style.display = 'none';
+      showCouponStatus(bill.couponMessage, 'error');
     } else {
       if (couponRow) couponRow.style.display = 'none';
     }
@@ -1406,28 +1481,30 @@
     }
 
     const cleanCode = code.trim().toUpperCase();
+    const coupon = AVAILABLE_COUPONS[cleanCode];
 
-    // Check eligible codes
-    if (cleanCode === 'SAVE10') {
-      state.appliedCoupon = { code: 'SAVE10', type: 'percentage', val: 10 };
-      Storage.set(STORAGE_KEYS.APPLIED_COUPON, state.appliedCoupon);
-      showCouponStatus('Coupon SAVE10 applied! 10% discount added (up to ₹500).', 'success');
-      showToast('Coupon SAVE10 applied successfully!', 'success');
-      renderCartView();
-    } else if (cleanCode === 'WELCOME50') {
+    if (coupon) {
       const bill = calculateBill(state.cart, null);
-      if (bill.subtotalAfterDiscount < 999) {
-        showCouponStatus('Order subtotal must be at least ₹999 to use WELCOME50.', 'error');
-        showToast('Cart subtotal must be ₹999+ for WELCOME50', 'error');
-      } else {
-        state.appliedCoupon = { code: 'WELCOME50', type: 'flat', val: 50 };
-        Storage.set(STORAGE_KEYS.APPLIED_COUPON, state.appliedCoupon);
-        showCouponStatus('Coupon WELCOME50 applied! ₹50 flat discount added.', 'success');
-        showToast('Coupon WELCOME50 applied successfully!', 'success');
-        renderCartView();
+      if (coupon.minSpend && bill.subtotalAfterDiscount < coupon.minSpend) {
+        const diff = coupon.minSpend - bill.subtotalAfterDiscount;
+        const errorMsg = `Cart subtotal must be at least ₹${coupon.minSpend.toLocaleString('en-IN')} to use ${coupon.code}. Add ${formatPrice(diff)} more to unlock ${coupon.rate ? (coupon.rate * 100) + '%' : 'this'} off.`;
+        showCouponStatus(errorMsg, 'error');
+        showToast(`Add ${formatPrice(diff)} more to unlock ${coupon.code}`, 'error');
+        return;
       }
+
+      state.appliedCoupon = { 
+        code: coupon.code, 
+        type: coupon.rate ? 'percentage' : 'flat', 
+        val: coupon.rate ? coupon.rate * 100 : coupon.flat 
+      };
+      Storage.set(STORAGE_KEYS.APPLIED_COUPON, state.appliedCoupon);
+      
+      showCouponStatus(`Coupon ${coupon.code} applied! ${coupon.description}.`, 'success');
+      showToast(`Coupon ${coupon.code} applied successfully!`, 'success');
+      renderCartView();
     } else {
-      showCouponStatus(`"${cleanCode}" is not a valid coupon code. Try SAVE10 or WELCOME50.`, 'error');
+      showCouponStatus(`"${cleanCode}" is not a valid coupon code. Try SAVE10, SAVE25, MEGA35, or VIP50.`, 'error');
       showToast('Invalid coupon code entered', 'error');
     }
   }
@@ -2633,6 +2710,8 @@
         showToast(`Coupon code is: ${code}`, 'info');
       }
     },
+    applyCoupon: applyCouponCode,
+    removeCoupon: removeCouponCode,
     removeFilterChip: (index) => {
       if (window.ShopSmartApp._activeChips && window.ShopSmartApp._activeChips[index]) {
         window.ShopSmartApp._activeChips[index].onRemove();
