@@ -517,51 +517,51 @@
     SAVE25: {
       code: 'SAVE25',
       rate: 0.25,
-      minSpend: 1999,
-      maxDiscount: 1000,
-      description: '25% OFF on orders of ₹1,999+ (Max ₹1,000 discount)'
+      minSpend: 3999,
+      maxDiscount: 1500,
+      description: '25% OFF on orders of ₹3,999+ (Max ₹1,500 discount)'
     },
     SUPER25: {
       code: 'SUPER25',
       rate: 0.25,
-      minSpend: 1999,
-      maxDiscount: 1000,
-      description: '25% OFF on orders of ₹1,999+ (Max ₹1,000 discount)'
+      minSpend: 3999,
+      maxDiscount: 1500,
+      description: '25% OFF on orders of ₹3,999+ (Max ₹1,500 discount)'
     },
     MEGA35: {
       code: 'MEGA35',
       rate: 0.35,
-      minSpend: 3499,
-      maxDiscount: 2000,
-      description: '35% OFF on orders of ₹3,499+ (Max ₹2,000 discount)'
+      minSpend: 4999,
+      maxDiscount: 2500,
+      description: '35% OFF on orders of ₹4,999+ (Max ₹2,500 discount)'
     },
     SAVE35: {
       code: 'SAVE35',
       rate: 0.35,
-      minSpend: 3499,
-      maxDiscount: 2000,
-      description: '35% OFF on orders of ₹3,499+ (Max ₹2,000 discount)'
+      minSpend: 4999,
+      maxDiscount: 2500,
+      description: '35% OFF on orders of ₹4,999+ (Max ₹2,500 discount)'
     },
     VIP50: {
       code: 'VIP50',
       rate: 0.50,
-      minSpend: 4999,
-      maxDiscount: 3500,
-      description: '50% OFF on orders of ₹4,999+ (Max ₹3,500 discount)'
+      minSpend: 7999,
+      maxDiscount: 4500,
+      description: '50% OFF on premium orders of ₹7,999+ (Max ₹4,500 discount)'
     },
     HALF50: {
       code: 'HALF50',
       rate: 0.50,
-      minSpend: 4999,
-      maxDiscount: 3500,
-      description: '50% OFF on orders of ₹4,999+ (Max ₹3,500 discount)'
+      minSpend: 7999,
+      maxDiscount: 4500,
+      description: '50% OFF on premium orders of ₹7,999+ (Max ₹4,500 discount)'
     },
     SAVE50: {
       code: 'SAVE50',
       rate: 0.50,
-      minSpend: 4999,
-      maxDiscount: 3500,
-      description: '50% OFF on orders of ₹4,999+ (Max ₹3,500 discount)'
+      minSpend: 7999,
+      maxDiscount: 4500,
+      description: '50% OFF on premium orders of ₹7,999+ (Max ₹4,500 discount)'
     },
     WELCOME50: {
       code: 'WELCOME50',
